@@ -1,1 +1,24 @@
-{}
+{
+  "name": "glean",
+  "description": "安装、更新依赖",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hcy520a/glean.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hcy520a/glean/issues"
+  },
+  "homepage": "https://github.com/hcy520a/glean#readme",
+  "keywords": [],
+  "dependencies": {
+    "uview-ui": "^1.8.4",
+    "vuex": "^4.0.2"
+  }
+}
