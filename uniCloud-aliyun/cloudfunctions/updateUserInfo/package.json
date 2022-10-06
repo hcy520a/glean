@@ -1,0 +1,7 @@
+{
+  "name": "updateUserInfo",
+  "dependencies": {
+    "wechant-common": "file:../common/wechant-common"
+  },
+  "extensions": {}
+}

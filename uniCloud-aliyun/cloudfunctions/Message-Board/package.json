@@ -1,0 +1,7 @@
+{
+  "name": "Message-Board",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}
