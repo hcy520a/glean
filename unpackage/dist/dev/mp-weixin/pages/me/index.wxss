@@ -31,7 +31,7 @@
   flex-direction: row;
 }
 .UCenter-bg.data-v-373b9194 {
-  background-color: #0da408;
+  background-color: #0081ff;
   background-size: cover;
   height: 395rpx;
   display: flex;

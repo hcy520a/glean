@@ -1,14 +1,14 @@
 {
   "pages": [
-    "pages/me/index",
     "pages/index/index",
+    "pages/me/index",
     "pages/glean/index"
   ],
   "subPackages": [],
   "window": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "拾穗",
-    "navigationBarBackgroundColor": "#F8F8F8",
+    "navigationBarBackgroundColor": "#0081ff",
     "backgroundColor": "#F8F8F8"
   },
   "tabBar": {

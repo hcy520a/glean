@@ -1,58 +1,53 @@
 <template>
-    <view class="">
+    <view class="" v-if="showMessage">
         <view class="content">
             <input type="text" class="" v-model="content" placeholder="骂人不可取">
             <button type="primary" @click="publish()" size="mini">发布</button>
         </view>
-        <scroll-view class="" v-for="item in messageList" :key="item._id" scroll-y>
-            <view class="box" :style="{'backgroundColor':randColor}">
+        <scroll-view class="" v-for="(item,index) in messageList" :key="item._id" scroll-y>
+            <view class="box" :style="[getBgColor(index + Math.floor(Math.random() * 10))]">
                 <view class="title">
                     <image :src="item.avatarUrl" mode=""></image>
                     <text class="name">{{item.nickName}}</text>
                 </view>
                 <view class="text">{{item.content}}</view>
-                <view class="time">2022年10月5日 23：08</view>
+                <view class="time">{{$u.timeFormat(item.createTime, 'yyyy年mm月dd日 hh时MM分ss秒')}}</view>
             </view>
         </scroll-view>
     </view>
 </template>
 
 <script>
-    // import {
-    //     useCounterStore
-    // } from '@/store/message.ts' // 导入存储库
-    // const counter = useCounterStore() // 得到存储库
+    import {
+        mapState,
+        mapGetters
+    } from 'vuex';
     import * as cloudApi from '@/utils/cloudApi.js'
     export default {
         data() {
             return {
                 content: '',
                 messageList: [],
-                userInfo: {}
+                userInfo: {},
+                showMessage: true
             }
         },
         onLoad() {
-
-            this.userInfo = uni.getStorageSync("userInfo")
             cloudApi.call({
-                name: "Message-Board",
+                name: 'Message-Board',
                 data: {
-                    api: 'getMessage'
+                    api: 'show'
                 },
                 success: (res) => {
-                    this.messageList = res.result.data
+                    this.showMessage = res.result.data[0].type
+                    console.log(res.result.data[0].type);
                 }
             })
+            this.userInfo = uni.getStorageSync("userInfo") || getApp().globalData.userInfo
+            this.getMessageList()
         },
         computed: {
-            randColor() { // pinia 用不了的话 只能在 发布留言的时候添加颜色了
-                let colorList = ['#e54d42', '#f37b1d', '#fbbd08', '#8dc63f', '#39b54a', '#1cbbb4', '#0081ff', '#6739b6',
-                    '#9c26b0', '#e03997'
-                ];
-                let index = Math.floor(Math.random() * colorList.length)
-
-                return colorList[index]
-            },
+            ...mapGetters('common', ['getBgColor']),
         },
         methods: {
 
@@ -64,18 +59,30 @@
                     data: {
                         api: 'publish',
                         content: this.content,
-                        nickName: this.userInfo.nickName,
-                        avatarUrl: this.userInfo.avatarUrl
+                        userInfo: this.userInfo
                     },
                     success: (res) => {
-                        this.messageList.push({
-                            _id: res.result.id,
-                            content: this.content
-                        })
+                        console.log(res);
+                        // this.messageList.unshift({
+                        //     _id: res.result.id,
+                        //     content: this.content
+                        // })
                         this.content = ''
+                        this.getMessageList()
                     }
                 })
             },
+            getMessageList() {
+                cloudApi.call({
+                    name: "Message-Board",
+                    data: {
+                        api: 'getMessage'
+                    },
+                    success: (res) => {
+                        this.messageList = res.result.data
+                    }
+                })
+            }
         }
     }
 </script>
@@ -131,7 +138,7 @@
         .time {
             margin-top: 10rpx;
             font-size: 24rpx;
-            color: #ccc;
+
         }
     }
 </style>

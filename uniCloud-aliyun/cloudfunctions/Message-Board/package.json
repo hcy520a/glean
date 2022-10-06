@@ -1,7 +1,7 @@
 {
   "name": "Message-Board",
-  "dependencies": {},
-  "extensions": {
-    "uni-cloud-jql": {}
-  }
+  "dependencies": {
+    "wechant-common": "file:../common/wechant-common"
+  },
+  "extensions": {}
 }

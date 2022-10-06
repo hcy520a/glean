@@ -16,7 +16,8 @@
     }
 </script>
 
-<style>
+<style lang="scss">
+    @import "uview-ui/index.scss";
     /* icon图标 */
     @import "@/style/iconfont.css";
     /* 彩色icon图标 */

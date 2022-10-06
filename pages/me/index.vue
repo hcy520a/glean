@@ -1,7 +1,7 @@
 <template>
     <view class="content">
         <view class="UCenter-bg">
-            <view @click="wxlogin()">
+            <view @click="isUserType()">
                 <image class="png" mode="widthFix"
                     :src="userInfo.avatarUrl ? userInfo.avatarUrl : '/static/images/users.png'"></image>
                 <view class="margin-top-sm nick_name">
@@ -24,15 +24,16 @@
         </view>
 
         <view class="grace-body" v-if="userInfo.nickName">
-            <view class="grace-grids-items">
-                <text class="iconfont icon-jiludanzilishijilu midIcon"></text>
-                <text class="grace-grids-text">考试记录</text>
+            <view class="grace-grids-items" v-for="(item,index) in otherInfo" :key="index">
+                <text :class="item.icon " class="midIcon"></text>
+                <text class="grace-grids-text">{{item.name}}</text>
             </view>
         </view>
-        <!-- <button @click="wxlogin()">点击获取openID</button> -->
-        <!-- <button @click="updateUserInfo()">同步微信信息</button> -->
+
+
         <view class="botInfo">
-            <button class="setItem" v-for="(item, index) in navs" :open-type="item.open_type" :key="index">
+            <button class="setItem" v-for="(item, index) in navs" :open-type="item.open_type" :key="index"
+                @click="toPage(index)">
                 <view class="setIcon">
                     <view class="t-icon set-t-icon" :class="item.icon"></view>
                 </view>
@@ -43,45 +44,64 @@
                 <text class="iconfont icon-dayuhao icon2"></text>
             </button>
         </view>
+        <!--  <u-modal v-model="userType" :content="userContent" mask-close-able title="登录用户类型" show-cancel-button
+            confirm-text="学生" cancel-text="教师"></u-modal> -->
     </view>
 </template>
 
 <script>
-    const prf = 't-';
     import * as cloudApi from '@/utils/cloudApi.js'
+    import {
+        getStudentList,
+        getTeacherList,
+        getNavList
+    } from './otherInfo.js';
     export default {
         data() {
             return {
-
-                userInfo: {
-
-                },
-                navs: [{
-                        icon: prf + ' t-icon-gerenxinxi1',
-                        name: '个人信息'
-                    },
-                    {
-                        icon: prf + 'icon-guanyuwomen-01-01',
-                        name: '关于拾穗'
-                    },
-                    {
-                        icon: prf + 'icon-fenxiangweiyin1',
-                        name: '分享拾穗',
-                        open_type: 'share'
-                    },
-                    {
-                        icon: prf + 'icon-tuichuzhanghao1',
-                        name: '清除缓存'
-                    }
-                ]
+                userType: null, // 1 为学生 2 为老师
+                userInfo: {},
+                otherInfo: [],
+                navs: getNavList()
             }
         },
         onLoad() {
-            // this.wxlogin()
+            this.userInfo = uni.getStorageSync("userInfo") || getApp().globalData.userInfo
+            if (this.userInfo.userType == 1) this.otherInfo = getStudentList()
+            else this.otherInfo = getTeacherList()
         },
         methods: {
-            async wxlogin() {
+            isUserType() {
                 if (this.userInfo.nickName) return
+                uni.showModal({
+                    title: '登录用户类型',
+                    content: '一旦选择，不可更改',
+                    confirmText: '学生',
+                    cancelText: '教师',
+                    confirmColor: '#0099ff',
+                    cancelColor: '#ff0000',
+                    success: res => {
+                        if (res.confirm) {
+                            this.userType = 1
+                            this.wxlogin()
+                        } else {
+                            this.userType = 2
+                            this.wxlogin()
+                        }
+                    }
+                });
+            },
+            toPage(index) {
+                if (index === 0) {
+                    this.updateUserInfo()
+                }
+                if (index === 3) {
+                    uni.clearStorageSync()
+                    getApp().globalData.userInfo = {}
+                    this.userInfo = {}
+                }
+            },
+            async wxlogin() {
                 uni.login({
                     provider: 'weixin',
                     success: (res) => {
@@ -89,12 +109,18 @@
                         cloudApi.call({ // 使用封装好的 
                             name: "login",
                             data: {
-                                code
+                                code,
+                                userType: this.userType
                             },
                             success: (res) => {
+                                console.log(res.result);
                                 this.userInfo = res.result
-                                getApp().globalData.userInfo = this.userInfo
-                                uni.setStorageSync("userInfo", this.userInfo)
+                                this.$setGlobalCache(this.userInfo, "userInfo")
+                                this.$setGlobalCache(this.userInfo.token, "token")
+
+                                if (this.userInfo.userType == 1) this.otherInfo =
+                                    getStudentList()
+                                else this.otherInfo = getTeacherList()
                             }
                         })
 
@@ -118,8 +144,8 @@
                         console.log(res);
                         // Object.assign()  合并具有相同属性的对象;第一个参数是目标对象，第二个参数为源对象
                         this.userInfo = Object.assign(this.userInfo, res.userInfo)
-                        getApp().globalData.userInfo = this.userInfo
-                        uni.setStorageSync("userInfo", this.userInfo)
+                        this.$setGlobalCache(this.userInfo, "userInfo")
+                        this.$setGlobalCache(this.userInfo.token, "token")
                         cloudApi.call({
                             name: "updateUserInfo",
                             data: {
@@ -129,7 +155,7 @@
                     }
                 })
 
-            }
+            },
         }
     }
 </script>
@@ -143,7 +169,7 @@
     }
 
     .UCenter-bg {
-        background-color: #0da408;
+        background-color: #0081ff;
         background-size: cover;
         height: 395rpx;
         display: flex;
