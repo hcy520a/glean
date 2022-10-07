@@ -85,7 +85,7 @@
 }
 .botInfo.data-v-373b9194 {
   background-color: #fff;
-  border-radius: 30rpx;
+  border-radius: 0rpx 0 30rpx 30rpx;
   padding: 30rpx 20rpx;
 }
 .botInfo button.data-v-373b9194::after {

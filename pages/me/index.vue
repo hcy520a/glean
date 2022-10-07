@@ -60,19 +60,32 @@
         data() {
             return {
                 userType: null, // 1 为学生 2 为老师
-                userInfo: {},
+                userInfo: {
+                    nickName: '',
+                    avatarUrl: ''
+                },
                 otherInfo: [],
                 navs: getNavList()
             }
         },
         onLoad() {
-            this.userInfo = uni.getStorageSync("userInfo") || getApp().globalData.userInfo
-            if (this.userInfo.userType == 1) this.otherInfo = getStudentList()
-            else this.otherInfo = getTeacherList()
+
+            uni.$on('refresh', () => {
+                this.userInfo = uni.getStorageSync("userInfo") || getApp().globalData.userInfo
+                if (this.userInfo) {
+                    if (this.userInfo.userType == 1) this.otherInfo = getStudentList()
+                    else this.otherInfo = getTeacherList()
+                }
+            });
+            uni.$emit('refresh')
+        },
+        onShow() {
+            console.log('onshow');
+            uni.$emit('refresh')
         },
         methods: {
             isUserType() {
-                if (this.userInfo.nickName) return
+                if (!(this.userInfo === undefined)) return
                 uni.showModal({
                     title: '登录用户类型',
                     content: '一旦选择，不可更改',
@@ -166,6 +179,7 @@
         background-color: #FFFFFF;
         display: flex;
         flex-direction: row;
+
     }
 
     .UCenter-bg {
@@ -233,7 +247,7 @@
 
     .botInfo {
         background-color: #fff;
-        border-radius: 30rpx;
+        border-radius: 0rpx 0 30rpx 30rpx;
         padding: 30rpx 20rpx;
 
         button::after {

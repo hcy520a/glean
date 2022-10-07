@@ -194,19 +194,32 @@ var _otherInfo = __webpack_require__(/*! ./otherInfo.js */ 67);function _getRequ
   data: function data() {
     return {
       userType: null, // 1 为学生 2 为老师
-      userInfo: {},
+      userInfo: {
+        nickName: '',
+        avatarUrl: '' },
+
       otherInfo: [],
       navs: (0, _otherInfo.getNavList)() };
 
   },
-  onLoad: function onLoad() {
-    this.userInfo = uni.getStorageSync("userInfo") || getApp().globalData.userInfo;
-    if (this.userInfo.userType == 1) this.otherInfo = (0, _otherInfo.getStudentList)();else
-    this.otherInfo = (0, _otherInfo.getTeacherList)();
+  onLoad: function onLoad() {var _this = this;
+
+    uni.$on('refresh', function () {
+      _this.userInfo = uni.getStorageSync("userInfo") || getApp().globalData.userInfo;
+      if (_this.userInfo) {
+        if (_this.userInfo.userType == 1) _this.otherInfo = (0, _otherInfo.getStudentList)();else
+        _this.otherInfo = (0, _otherInfo.getTeacherList)();
+      }
+    });
+    uni.$emit('refresh');
+  },
+  onShow: function onShow() {
+    console.log('onshow');
+    uni.$emit('refresh');
   },
   methods: {
-    isUserType: function isUserType() {var _this = this;
-      if (this.userInfo.nickName) return;
+    isUserType: function isUserType() {var _this2 = this;
+      if (!(this.userInfo === undefined)) return;
       uni.showModal({
         title: '登录用户类型',
         content: '一旦选择，不可更改',
@@ -216,11 +229,11 @@ var _otherInfo = __webpack_require__(/*! ./otherInfo.js */ 67);function _getRequ
         cancelColor: '#ff0000',
         success: function success(res) {
           if (res.confirm) {
-            _this.userType = 1;
-            _this.wxlogin();
+            _this2.userType = 1;
+            _this2.wxlogin();
           } else {
-            _this.userType = 2;
-            _this.wxlogin();
+            _this2.userType = 2;
+            _this2.wxlogin();
           }
         } });
 
@@ -235,7 +248,7 @@ var _otherInfo = __webpack_require__(/*! ./otherInfo.js */ 67);function _getRequ
         this.userInfo = {};
       }
     },
-    wxlogin: function wxlogin() {var _this2 = this;return _asyncToGenerator( /*#__PURE__*/_regenerator.default.mark(function _callee() {return _regenerator.default.wrap(function _callee$(_context) {while (1) {switch (_context.prev = _context.next) {case 0:
+    wxlogin: function wxlogin() {var _this3 = this;return _asyncToGenerator( /*#__PURE__*/_regenerator.default.mark(function _callee() {return _regenerator.default.wrap(function _callee$(_context) {while (1) {switch (_context.prev = _context.next) {case 0:
                 uni.login({
                   provider: 'weixin',
                   success: function success(res) {
@@ -244,17 +257,17 @@ var _otherInfo = __webpack_require__(/*! ./otherInfo.js */ 67);function _getRequ
                       name: "login",
                       data: {
                         code: code,
-                        userType: _this2.userType },
+                        userType: _this3.userType },
 
                       success: function success(res) {
                         console.log(res.result);
-                        _this2.userInfo = res.result;
-                        _this2.$setGlobalCache(_this2.userInfo, "userInfo");
-                        _this2.$setGlobalCache(_this2.userInfo.token, "token");
+                        _this3.userInfo = res.result;
+                        _this3.$setGlobalCache(_this3.userInfo, "userInfo");
+                        _this3.$setGlobalCache(_this3.userInfo.token, "token");
 
-                        if (_this2.userInfo.userType == 1) _this2.otherInfo =
+                        if (_this3.userInfo.userType == 1) _this3.otherInfo =
                         (0, _otherInfo.getStudentList)();else
-                        _this2.otherInfo = (0, _otherInfo.getTeacherList)();
+                        _this3.otherInfo = (0, _otherInfo.getTeacherList)();
                       } });
 
 
@@ -270,20 +283,20 @@ var _otherInfo = __webpack_require__(/*! ./otherInfo.js */ 67);function _getRequ
                   } });case 1:case "end":return _context.stop();}}}, _callee);}))();
 
     },
-    updateUserInfo: function updateUserInfo() {var _this3 = this;
+    updateUserInfo: function updateUserInfo() {var _this4 = this;
       uni.getUserProfile({ // 11月8日将不在提供头像和昵称信息
         desc: "展示用户信息",
         lang: 'zh_CN',
         success: function success(res) {
           console.log(res);
           // Object.assign()  合并具有相同属性的对象;第一个参数是目标对象，第二个参数为源对象
-          _this3.userInfo = Object.assign(_this3.userInfo, res.userInfo);
-          _this3.$setGlobalCache(_this3.userInfo, "userInfo");
-          _this3.$setGlobalCache(_this3.userInfo.token, "token");
+          _this4.userInfo = Object.assign(_this4.userInfo, res.userInfo);
+          _this4.$setGlobalCache(_this4.userInfo, "userInfo");
+          _this4.$setGlobalCache(_this4.userInfo.token, "token");
           cloudApi.call({
             name: "updateUserInfo",
             data: {
-              userInfo: _this3.userInfo } });
+              userInfo: _this4.userInfo } });
 
 
         } });
